@@ -30,7 +30,7 @@ except FileNotFoundError:
 
 # Ask Gemini for a review
 # We use the 'gemini-1.5-pro' model here, which has a massive context window
-model = genai.GenerativeModel('gemini-1.5-pro')
+model = genai.GenerativeModel('ggemini-1.5-flash')
 
 prompt = (
     f"You are a strict senior Java developer reviewing code. "
