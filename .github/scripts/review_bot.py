@@ -1,10 +1,12 @@
 import os
 import json
 import requests
-import openai
+import google.generativeai as genai
 
-# Load env variables
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Load env variables and configure the Gemini API
+# The client automatically picks up the GEMINI_API_KEY from the environment
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
 github_token = os.getenv("GITHUB_TOKEN")
 event_path = os.getenv("GITHUB_EVENT_PATH")
 
@@ -18,19 +20,31 @@ repo = event["repository"]["full_name"]
 print(f"🔎 Reviewing PR #{pr_number} in repo {repo}...")
 
 # Read Java code (demo: single file App.java, you can expand later)
-with open("src/main/java/com/demo/App.java") as f:
-    java_code = f.read()
+# This assumes the file exists in the correct path within your repo
+try:
+    with open("src/main/java/com/demo/App.java") as f:
+        java_code = f.read()
+except FileNotFoundError:
+    print("⚠️ Error: 'src/main/java/com/demo/App.java' not found. Exiting.")
+    exit()
 
-# Ask OpenAI for review
-response = openai.ChatCompletion.create(
-    model="gpt-3.5-turbo",
-    messages=[
-        {"role": "system", "content": "You are a strict senior Java developer reviewing code."},
-        {"role": "user", "content": f"Review this Java code for:\n1. Code quality\n2. Naming conventions\n3. Best practices\n4. Possible bugs\n\nCode:\n\n{java_code}"}
-    ]
+# Ask Gemini for a review
+# We use the 'gemini-1.5-pro' model here, which has a massive context window
+model = genai.GenerativeModel('gemini-1.5-flash')
+
+prompt = (
+    f"You are a strict senior Java developer reviewing code. "
+    f"Review this Java code for:\n"
+    f"1. Code quality\n"
+    f"2. Naming conventions\n"
+    f"3. Best practices\n"
+    f"4. Possible bugs\n\n"
+    f"Code:\n\n{java_code}"
 )
 
-review_comment = response.choices[0].message["content"]
+# Use generate_content instead of the ChatCompletion API
+response = model.generate_content(prompt)
+review_comment = response.text
 
 print("=== Review Suggestions ===")
 print(review_comment)
@@ -38,7 +52,7 @@ print(review_comment)
 # Post review as a PR comment
 comments_url = f"https://api.github.com/repos/{repo}/issues/{pr_number}/comments"
 headers = {"Authorization": f"token {github_token}"}
-payload = {"body": f"🤖 **PR Bot Review:**\n\n{review_comment}"}
+payload = {"body": f"🤖 **Gemini PR Bot Review:**\n\n{review_comment}"}
 
 r = requests.post(comments_url, headers=headers, json=payload)
 
