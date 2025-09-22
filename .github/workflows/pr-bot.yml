@@ -24,5 +24,6 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.MYPRBOTKEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_EVENT_PATH: ${{ github.event_path }}
-        run: python .github/scripts/review.py
+        run: python .github/scripts/review_bot.py
+
 
