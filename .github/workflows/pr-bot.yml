@@ -7,6 +7,9 @@ on:
 jobs:
   review:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -18,14 +21,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install openai==0.28
-
+          pip install google-generativeai
 
       - name: Run PR Review Bot
         env:
-          OPENAI_API_KEY: ${{ secrets.MYPRBOTKEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_EVENT_PATH: ${{ github.event_path }}
         run: python .github/scripts/review_bot.py
-
-
