@@ -17,12 +17,15 @@ jobs:
           python-version: "3.10"
 
       - name: Install dependencies
-        run: pip install openai requests
+        run: |
+          pip install openai==0.28
+
 
       - name: Run PR Review Bot
         env:
           OPENAI_API_KEY: ${{ secrets.MYPRBOTKEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_EVENT_PATH: ${{ github.event_path }}
-        run: python .github/scripts/review.py
+        run: python .github/scripts/review_bot.py
+
 

@@ -23,7 +23,7 @@ with open("src/main/java/com/demo/App.java") as f:
 
 # Ask OpenAI for review
 response = openai.ChatCompletion.create(
-    model="gpt-4o-mini",
+    model="gpt-3.5-turbo",
     messages=[
         {"role": "system", "content": "You are a strict senior Java developer reviewing code."},
         {"role": "user", "content": f"Review this Java code for:\n1. Code quality\n2. Naming conventions\n3. Best practices\n4. Possible bugs\n\nCode:\n\n{java_code}"}
